@@ -1,15 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-// Prisma 7: connection URL is configured in prisma.config.ts
-// Note: Prisma 7 auto-creates indexes for @unique fields;
-//       @@index is only needed for non-unique and compound indexes.
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================
