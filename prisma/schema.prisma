@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma 7: connection URL is configured in prisma.config.ts
+// Note: Prisma 7 auto-creates indexes for @unique fields;
+//       @@index is only needed for non-unique and compound indexes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+// ============================================================
+// Users
+// ============================================================
+
+model User {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  employeeId String    @unique
+  firstName  String
+  lastName   String
+  email      String    @unique
+  password   String
+  phone      String?
+  department String?
+  position   String?
+  avatar     String?
+  roleId     String    @db.ObjectId
+  isActive   Boolean   @default(true)
+  isDeleted  Boolean   @default(false)
+  deletedAt  DateTime?
+  deletedBy  String?   @db.ObjectId
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  createdBy  String?   @db.ObjectId
+  updatedBy  String?   @db.ObjectId
+
+  @@index([roleId])
+  @@index([isDeleted])
+  @@index([isDeleted, roleId])
+  @@index([isDeleted, isActive])
+  @@index([department])
+  @@map("users")
+}
+
+// ============================================================
+// Roles
+// ============================================================
+
+model Role {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String    @unique
+  description   String?
+  permissionIds String[]  @db.ObjectId
+  isSystem      Boolean   @default(false)
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
+  deletedBy     String?   @db.ObjectId
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isDeleted])
+  @@map("roles")
+}
+
+// ============================================================
+// Permissions
+// ============================================================
+
+model Permission {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  module      String
+  action      String
+  slug        String    @unique
+  description String?
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  deletedBy   String?   @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([module])
+  @@map("permissions")
+}
+
+// ============================================================
+// Assets
+// ============================================================
+
+model Asset {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  assetCode      String    @unique
+  name           String
+  description    String?
+  serialNumber   String?   @unique
+  categoryId     String    @db.ObjectId
+  brand          String?
+  model          String?
+  status         String    @default("AVAILABLE")
+  purchaseDate   DateTime?
+  purchasePrice  Float?
+  warrantyExpiry DateTime?
+  location       String?
+  department     String?
+  assignedTo     String?   @db.ObjectId
+  notes          String?
+  dataSanitized  Boolean   @default(false)
+  isDeleted      Boolean   @default(false)
+  deletedAt      DateTime?
+  deletedBy      String?   @db.ObjectId
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdBy      String?   @db.ObjectId
+  updatedBy      String?   @db.ObjectId
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([isDeleted])
+  @@index([isDeleted, categoryId, status])
+  @@index([isDeleted, status])
+  @@map("assets")
+}
+
+// ============================================================
+// Categories
+// ============================================================
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
+  deletedBy   String?   @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([isDeleted])
+  @@map("categories")
+}
+
+// ============================================================
+// Assignments (history — never deleted)
+// ============================================================
+
+model Assignment {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  assetId         String    @db.ObjectId
+  assignedTo      String    @db.ObjectId
+  assignedBy      String    @db.ObjectId
+  action          String
+  transferredFrom String?   @db.ObjectId
+  notes           String?
+  assignedAt      DateTime  @default(now())
+  returnedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([assetId])
+  @@index([assignedTo])
+  @@index([action])
+  @@index([assignedAt])
+  @@index([assetId, assignedAt(sort: Desc)])
+  @@index([assignedTo, action])
+  @@map("assignments")
+}
+
+// ============================================================
+// Activity Logs (immutable — no updatedAt)
+// ============================================================
+
+model ActivityLog {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  action     String
+  module     String
+  entityId   String?  @db.ObjectId
+  entityName String?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([module])
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityId])
+  @@index([module, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("activity_logs")
+}
+
+// ============================================================
+// Settings
+// ============================================================
+
+model Setting {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  key         String   @unique
+  value       String
+  group       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([group])
+  @@map("settings")
+}
+
+// ============================================================
+// Refresh Tokens
+// ============================================================
+
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  token     String   @unique
+  userId    String   @db.ObjectId
+  isRevoked Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
