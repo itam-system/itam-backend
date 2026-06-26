@@ -25,6 +25,64 @@ export class AuthService {
   ) {}
 
   // ─────────────────────────────────────────────
+  // Get Current User Profile
+  // ─────────────────────────────────────────────
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId, isDeleted: false },
+      select: {
+        id: true,
+        employeeId: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        department: true,
+        position: true,
+        avatar: true,
+        roleId: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new BusinessException(
+        ErrorCodes.USER_NOT_FOUND,
+        'User not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const role = await this.prisma.role.findUnique({
+      where: { id: user.roleId },
+    });
+
+    const permissionSlugs: string[] = [];
+    if (role) {
+      const permissions = await this.prisma.permission.findMany({
+        where: {
+          id: { in: role.permissionIds },
+          isDeleted: false,
+        },
+        select: { slug: true },
+      });
+      permissionSlugs.push(...permissions.map((p) => p.slug));
+    }
+
+    return {
+      user: {
+        ...user,
+        role: role
+          ? { id: role.id, name: role.name, description: role.description }
+          : null,
+      },
+      permissions: permissionSlugs,
+    };
+  }
+
+  // ─────────────────────────────────────────────
   // Login
   // ─────────────────────────────────────────────
   async login(

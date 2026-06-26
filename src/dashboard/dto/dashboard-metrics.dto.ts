@@ -34,6 +34,17 @@ class RecentAssignmentDto {
   assignedAt!: string;
 }
 
+class AssetByCategoryDto {
+  @ApiProperty({ example: '6651abc123def456ghi789jk' })
+  categoryId!: string;
+
+  @ApiProperty({ example: 'Laptops' })
+  categoryName!: string;
+
+  @ApiProperty({ example: 45 })
+  count!: number;
+}
+
 export class DashboardMetricsDto {
   @ApiProperty({ example: 150 })
   totalUsers!: number;
@@ -58,4 +69,7 @@ export class DashboardMetricsDto {
 
   @ApiProperty({ type: [RecentAssignmentDto] })
   recentAssignments!: RecentAssignmentDto[];
+
+  @ApiProperty({ type: [AssetByCategoryDto] })
+  assetsByCategory!: AssetByCategoryDto[];
 }

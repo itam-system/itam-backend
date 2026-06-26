@@ -15,6 +15,8 @@ export class DashboardService {
       assetStatusCounts,
       rawRecentActivities,
       rawRecentAssignments,
+      categories,
+      assetsByCategoryRaw,
     ] = await Promise.all([
       // Users count
       this.prisma.user.count({ where: { isDeleted: false } }),
@@ -53,6 +55,19 @@ export class DashboardService {
           assetId: true,
           assignedTo: true,
         },
+      }),
+
+      // Categories (for asset-by-category breakdown)
+      this.prisma.category.findMany({
+        where: { isDeleted: false },
+        select: { id: true, name: true },
+      }),
+
+      // Asset count grouped by category
+      this.prisma.asset.groupBy({
+        by: ['categoryId'],
+        _count: { categoryId: true },
+        where: { isDeleted: false },
       }),
     ]);
 
@@ -103,6 +118,14 @@ export class DashboardService {
       createdAt: a.createdAt.toISOString(),
     }));
 
+    const assetsByCategory = categories.map((cat) => ({
+      categoryId: cat.id,
+      categoryName: cat.name,
+      count:
+        assetsByCategoryRaw.find((a) => a.categoryId === cat.id)?._count
+          .categoryId ?? 0,
+    }));
+
     return {
       totalUsers,
       totalAssets,
@@ -112,6 +135,7 @@ export class DashboardService {
       disposedAssets,
       recentActivities,
       recentAssignments,
+      assetsByCategory,
     };
   }
 }

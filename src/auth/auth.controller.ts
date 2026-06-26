@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -104,6 +105,18 @@ export class AuthController {
       user.refreshToken,
     );
     return tokens;
+  }
+
+  // ─────────────────────────────────────────────
+  // GET /auth/me
+  // ─────────────────────────────────────────────
+  @Get('me')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user profile with permissions' })
+  @ApiResponse({ status: 200, description: 'Returns user profile and permission slugs' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getMe(@CurrentUser() currentUser: ActiveUser) {
+    return this.authService.getMe(currentUser.userId);
   }
 
   // ─────────────────────────────────────────────
