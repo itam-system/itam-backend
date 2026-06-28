@@ -53,7 +53,7 @@ export class AssetsService {
     const asset = await this.assetsRepository.create({
       assetCode,
       name: dto.name,
-      categoryId: dto.categoryId,
+      category: { connect: { id: dto.categoryId } },
       brand: dto.brand,
       model: dto.model,
       serialNumber: dto.serialNumber,
@@ -163,7 +163,7 @@ export class AssetsService {
 
     const updated = await this.assetsRepository.update(id, {
       ...(dto.name !== undefined && { name: dto.name }),
-      ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
+      ...(dto.categoryId !== undefined && { category: { connect: { id: dto.categoryId } } }),
       ...(dto.brand !== undefined && { brand: dto.brand }),
       ...(dto.model !== undefined && { model: dto.model }),
       ...(dto.serialNumber !== undefined && { serialNumber: dto.serialNumber }),

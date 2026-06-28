@@ -91,6 +91,7 @@ model Asset {
   description    String?
   serialNumber   String?   @unique
   categoryId     String    @db.ObjectId
+  category       Category  @relation(fields: [categoryId], references: [id])
   brand          String?
   model          String?
   status         String    @default("AVAILABLE")
@@ -125,15 +126,21 @@ model Asset {
 model Category {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String    @unique
+  code        String    @unique
   slug        String    @unique
   description String?
+  icon        String    @default("folder")
+  color       String    @default("#6366f1")
+  isActive    Boolean   @default(true)
   isDeleted   Boolean   @default(false)
   deletedAt   DateTime?
   deletedBy   String?   @db.ObjectId
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([isDeleted])
+  assets      Asset[]
+
+  @@index([isDeleted, isActive])
   @@map("categories")
 }
 

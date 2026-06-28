@@ -8,7 +8,9 @@ import { RolesModule } from './roles/roles.module.js';
 import { UsersModule } from './users/users.module.js';
 import { AssetsModule } from './assets/assets.module.js';
 import { AssignmentsModule } from './assignments/assignments.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
+import { SettingsModule } from './settings/settings.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor.js';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor.js';
@@ -29,7 +31,9 @@ import { RequestIdMiddleware } from './common/middlewares/request-id.middleware.
     UsersModule,
     AssetsModule,
     AssignmentsModule,
+    CategoriesModule,
     DashboardModule,
+    SettingsModule,
   ],
   providers: [
     // Apply JwtAuthGuard globally — @Public() bypasses it

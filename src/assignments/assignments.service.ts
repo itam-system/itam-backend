@@ -71,6 +71,7 @@ export class AssignmentsService {
           assignedBy,
           action: AssignmentAction.ASSIGN,
           notes: dto.notes,
+          returnedAt: null,
         },
       });
 
@@ -192,6 +193,7 @@ export class AssignmentsService {
           action: AssignmentAction.TRANSFER,
           transferredFrom: previousAssigneeId,
           notes: dto.notes,
+          returnedAt: null,
         },
       });
 
