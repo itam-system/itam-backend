@@ -1,7 +1,8 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module.js';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter.js';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter.js';
@@ -10,12 +11,19 @@ import { PrismaService } from './common/database/prisma.service.js';
 import { API_PREFIX } from './common/constants/app.constant.js';
 
 async function bootstrap() {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN || '',
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0,
+    enabled: !!process.env.SENTRY_DSN,
+  });
+
   const app = await NestFactory.create(AppModule);
 
   // ─── Security ────────────────────────────────
   app.use(helmet());
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.CORS_ORIGIN,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id'],
     credentials: true,

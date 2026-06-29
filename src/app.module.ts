@@ -10,8 +10,12 @@ import { AssetsModule } from './assets/assets.module.js';
 import { AssignmentsModule } from './assignments/assignments.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { ActivityLogsModule } from './activity-logs/activity-logs.module.js';
+import { HealthModule } from './health/health.module.js';
+import { RequestLoggerMiddleware } from './common/middlewares/request-logger.middleware.js';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor.js';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor.js';
@@ -25,6 +29,12 @@ import { RequestIdMiddleware } from './common/middlewares/request-id.middleware.
     // Global database (PrismaService available everywhere)
     DatabaseModule,
 
+    // Rate limiting — 30 requests per 60 seconds by default
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 30,
+    }]),
+
     // Feature modules
     AuthModule,
     PermissionsModule,
@@ -34,14 +44,21 @@ import { RequestIdMiddleware } from './common/middlewares/request-id.middleware.
     AssignmentsModule,
     CategoriesModule,
     DashboardModule,
+    ReportsModule,
     SettingsModule,
     ActivityLogsModule,
+    HealthModule,
   ],
   providers: [
     // Apply JwtAuthGuard globally — @Public() bypasses it
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    // Apply ThrottlerGuard globally — @SkipThrottle() bypasses it
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     // Wrap all success responses in { success, data, timestamp }
     {
@@ -57,6 +74,8 @@ import { RequestIdMiddleware } from './common/middlewares/request-id.middleware.
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer
+      .apply(RequestIdMiddleware, RequestLoggerMiddleware)
+      .forRoutes('*');
   }
 }

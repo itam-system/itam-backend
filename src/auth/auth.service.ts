@@ -27,6 +27,7 @@ export class AuthService {
   // ─────────────────────────────────────────────
   // Get Current User Profile
   // ─────────────────────────────────────────────
+  /** Returns the user profile with resolved role info and all permission slugs */
   async getMe(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId, isDeleted: false },
@@ -85,6 +86,7 @@ export class AuthService {
   // ─────────────────────────────────────────────
   // Login
   // ─────────────────────────────────────────────
+  /** Validates credentials, returns JWT token pair and basic user info. Logs login activity. */
   async login(
     dto: LoginDto,
     ipAddress?: string,
@@ -148,6 +150,7 @@ export class AuthService {
   // ─────────────────────────────────────────────
   // Logout
   // ─────────────────────────────────────────────
+  /** Revokes the refresh token and logs logout activity */
   async logout(
     currentUser: ActiveUser,
     refreshToken: string,
@@ -170,6 +173,7 @@ export class AuthService {
   // ─────────────────────────────────────────────
   // Refresh Tokens (rotation)
   // ─────────────────────────────────────────────
+  /** Validates and revokes the old refresh token, issues a new token pair (rotation) */
   async refreshTokens(
     userId: string,
     email: string,
@@ -214,6 +218,7 @@ export class AuthService {
   // ─────────────────────────────────────────────
   // Change Password
   // ─────────────────────────────────────────────
+  /** Validates current password, hashes new password, revokes all refresh tokens */
   async changePassword(
     currentUser: ActiveUser,
     dto: ChangePasswordDto,

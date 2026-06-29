@@ -8,7 +8,7 @@ import type { ActiveUser } from '../../common/interfaces/active-user.interface.j
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
-    const secretOrKey = configService.get<string>('jwt.accessSecret', 'fallback-secret');
+    const secretOrKey = configService.getOrThrow<string>('jwt.accessSecret');
     const options: StrategyOptionsWithoutRequest = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
