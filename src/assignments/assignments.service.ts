@@ -42,6 +42,7 @@ export class AssignmentsService {
   // ─────────────────────────────────────────────
   // Assign Asset
   // ─────────────────────────────────────────────
+  /** Assigns an AVAILABLE asset to a user. Uses transaction to create assignment history and update asset status to ASSIGNED. */
   async assignAsset(dto: AssignAssetDto, assignedBy: string): Promise<AssignmentWithRelations> {
     const asset = await this.assetsRepository.findById(dto.assetId);
     if (!asset) {
@@ -94,6 +95,7 @@ export class AssignmentsService {
   // ─────────────────────────────────────────────
   // Return Asset
   // ─────────────────────────────────────────────
+  /** Returns an ASSIGNED asset. Closes active assignment, creates return history record, updates asset to AVAILABLE (or specified status). */
   async returnAsset(dto: ReturnAssetDto, returnedBy: string): Promise<AssignmentWithRelations> {
     const asset = await this.assetsRepository.findById(dto.assetId);
     if (!asset) {
@@ -150,6 +152,7 @@ export class AssignmentsService {
   // ─────────────────────────────────────────────
   // Transfer Asset
   // ─────────────────────────────────────────────
+  /** Transfers an ASSIGNED asset to a different user. Closes current assignment, creates transfer history, updates asset assignee. */
   async transferAsset(dto: TransferAssetDto, transferredBy: string): Promise<AssignmentWithRelations> {
     const asset = await this.assetsRepository.findById(dto.assetId);
     if (!asset) {
@@ -215,6 +218,7 @@ export class AssignmentsService {
   // ─────────────────────────────────────────────
   // Find all (History)
   // ─────────────────────────────────────────────
+  /** Paginated assignment history with optional filtering by assetId, assignedTo, assignedBy, action */
   async findAll(query: AssignmentQueryDto): Promise<AssignmentsPage> {
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(100, Math.max(1, query.limit ?? 20));

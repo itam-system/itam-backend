@@ -12,7 +12,7 @@ import type { JwtPayload } from '../../common/interfaces/jwt-payload.interface.j
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(configService: ConfigService) {
-    const secretOrKey = configService.get<string>('jwt.refreshSecret', 'fallback-refresh-secret');
+    const secretOrKey = configService.getOrThrow<string>('jwt.refreshSecret');
     const options: StrategyOptionsWithRequest = {
       jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
       ignoreExpiration: false,

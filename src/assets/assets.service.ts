@@ -33,6 +33,7 @@ export class AssetsService {
   // ─────────────────────────────────────────────
   // Create
   // ─────────────────────────────────────────────
+  /** Creates an asset with auto-generated AST-XXXXXX code. Checks for duplicate serial numbers. */
   async create(dto: CreateAssetDto, createdBy: string): Promise<AssetWithRelations> {
     // Generate 6-length asset code: AST-000001
     const totalAssets = await this.assetsRepository.countAll();
@@ -74,6 +75,7 @@ export class AssetsService {
   // ─────────────────────────────────────────────
   // Find all (paginated, filtered, sorted)
   // ─────────────────────────────────────────────
+  /** Paginated asset list with full-text search (name, code, serial, brand, model) and filters (category, department, status, assignee) */
   async findAll(query: AssetQueryDto): Promise<AssetsPage> {
     const page = Math.max(1, query.page ?? 1);
     const limit = Math.min(100, Math.max(1, query.limit ?? 20));
@@ -132,6 +134,7 @@ export class AssetsService {
   // ─────────────────────────────────────────────
   // Find one
   // ─────────────────────────────────────────────
+  /** Returns a single asset by ID with resolved category and assignee. Throws ASSET_NOT_FOUND if missing. */
   async findOne(id: string): Promise<AssetWithRelations> {
     const asset = await this.assetsRepository.findById(id);
     if (!asset) {
@@ -147,6 +150,7 @@ export class AssetsService {
   // ─────────────────────────────────────────────
   // Update
   // ─────────────────────────────────────────────
+  /** Updates asset fields. Checks duplicate serial number if changed. Only provided fields are updated. */
   async update(id: string, dto: UpdateAssetDto, updatedBy: string): Promise<AssetWithRelations> {
     const asset = await this.findOne(id);
 
@@ -184,6 +188,7 @@ export class AssetsService {
   // ─────────────────────────────────────────────
   // Soft Delete
   // ─────────────────────────────────────────────
+  /** Soft-deletes an asset. Blocks deletion if the asset is currently assigned. */
   async remove(id: string, deletedBy: string): Promise<void> {
     const asset = await this.findOne(id);
     if (asset.assignedTo) {

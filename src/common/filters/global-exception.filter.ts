@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc.js';
 import timezone from 'dayjs/plugin/timezone.js';
 import { TIMEZONE } from '../constants/app.constant.js';
+import * as Sentry from '@sentry/node';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -58,6 +59,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         `Unhandled exception: ${exception.message}`,
         exception.stack,
       );
+    }
+
+    if (statusCode >= 500) {
+      Sentry.captureException(exception, {
+        tags: { statusCode: String(statusCode), errorCode },
+      });
     }
 
     response.status(statusCode).json({
