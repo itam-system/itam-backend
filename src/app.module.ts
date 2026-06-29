@@ -11,6 +11,7 @@ import { AssignmentsModule } from './assignments/assignments.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { SettingsModule } from './settings/settings.module.js';
+import { ActivityLogsModule } from './activity-logs/activity-logs.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ResponseTransformInterceptor } from './common/interceptors/response-transform.interceptor.js';
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor.js';
@@ -34,6 +35,7 @@ import { RequestIdMiddleware } from './common/middlewares/request-id.middleware.
     CategoriesModule,
     DashboardModule,
     SettingsModule,
+    ActivityLogsModule,
   ],
   providers: [
     // Apply JwtAuthGuard globally — @Public() bypasses it
